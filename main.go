@@ -16,6 +16,9 @@ func main() {
 		port = "3000"
 	}
 	mux := http.NewServeMux()
+	// Serving static files
+	fs := http.FileServer(http.Dir("assets"))
+	mux.Handle("/assets/", http.StripPrefix("/assets/", fs))
 	mux.HandleFunc("/", indexHandler)
 	log.Println("Starting server on : ", port)
 	log.Fatal(http.ListenAndServe(":"+port, mux))
