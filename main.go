@@ -1,14 +1,12 @@
 package main
 
 import (
-	"html/template"
 	"log"
 	"net/http"
 	"os"
-)
 
-// index.html is Parsed and if it throws the error then code panics
-var tpl = template.Must(template.ParseFiles("index.html"))
+	"github.com/farzamalam/go-news/handlers"
+)
 
 func main() {
 	port := os.Getenv("PORT")
@@ -19,11 +17,8 @@ func main() {
 	// Serving static files
 	fs := http.FileServer(http.Dir("assets"))
 	mux.Handle("/assets/", http.StripPrefix("/assets/", fs))
-	mux.HandleFunc("/", indexHandler)
+	mux.HandleFunc("/search", handlers.SearchHandler)
+	mux.HandleFunc("/", handlers.IndexHandler)
 	log.Println("Starting server on : ", port)
 	log.Fatal(http.ListenAndServe(":"+port, mux))
-}
-
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	tpl.Execute(w, nil)
 }
