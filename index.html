@@ -8,12 +8,12 @@
     <body>
         <main>
             <header>
-                <a class="logo" href = "/">News Demo<a>
+                <a class="logo" href = "/"><img id = "off_logo" src= "/assets/logo.png"><a>
                 <form action = "/search" method = "GET">
                     <input autofocus class = "search-input" value = "{{.SearchKey}}"
                     placeholder = "Enter a news topic" type = "search" name = "q">
                 </form>
-                <a href= "https://github.com/FarzamAlam/go-news">View on Github</a>
+                <a href= "https://github.com/FarzamAlam/go-news"><img src="https://img.icons8.com/ios-glyphs/30/000000/github.png"/></a>
             </header>
             <section class = "container">
 
@@ -34,7 +34,7 @@
                                 <p class = "description">{{.Description}}</p>
                                 <div class= "metadata">
                                     <p class = "source">{{.Source.Name}}</p>
-                                    <time class = "published-date"><strong>{{.FormatPublishedDate}}</strong></time>
+                                    <time class = "published-date">{{.FormatPublishedDate}}</time>
                                 </div>
                             </div>
                             <img class="article-image" src = "{{.URLToImage}}">

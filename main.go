@@ -8,6 +8,17 @@ import (
 	"github.com/farzamalam/go-news/handlers"
 )
 
+// TO DO:
+// 0. Implement a running app.
+// 1. Get top stories by default for user country or india.
+// 2. Update the Header UI.
+// 3. Refractor newsHandler.
+// 4. Implement Concurrency.
+// 5. Implement Caching.
+// 6. Deploy on heruko.
+// 7. Make a proper README.
+// 8. Post it on reddit.
+
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {

@@ -61,6 +61,10 @@ html {
     color: #002200;
   }
   
+  #off_logo{
+    margin-top: 30px;
+
+  }
   form {
     height: calc(100% - 10px);
   }
