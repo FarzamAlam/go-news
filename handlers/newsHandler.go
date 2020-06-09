@@ -84,6 +84,11 @@ type Article struct {
 	Content     string    `json:"content"`
 }
 
+func (a *Article) FormatPublishedDate() string {
+	year, month, day := a.PublishedAt.Date()
+	return fmt.Sprintf("%v %d, %d", month, day, year)
+}
+
 type Source struct {
 	ID   interface{} `json:"id"`
 	Name string      `json:"name"`
