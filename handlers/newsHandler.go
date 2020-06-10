@@ -16,17 +16,14 @@ import (
 // index.html is Parsed and if it throws the error then code panics
 var tpl = template.Must(template.ParseFiles("index.html"))
 
-// IndexHandler is the  default hanlder to execute the template
-func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	tpl.Execute(w, nil)
-}
-
+// Results is used to recieve response from the api
 type Results struct {
 	Status       string    `json:"status"`
 	TotalResults int       `json:"totalResults"`
 	Articles     []Article `json:"articles"`
 }
 
+// Article defines single article, slice of Articles is used in Results.
 type Article struct {
 	Source      Source    `json:"source"`
 	Author      string    `json:"author"`
@@ -38,6 +35,7 @@ type Article struct {
 	Content     string    `json:"content"`
 }
 
+// FormatPublishedDate is used to format the resp date.
 func (a *Article) FormatPublishedDate() string {
 	year, month, day := a.PublishedAt.Date()
 	return fmt.Sprintf("%v %d, %d", month, day, year)
@@ -55,6 +53,12 @@ type Search struct {
 	Results    Results
 }
 
+type NewsAPIError struct {
+	Status  string `json:"status"`
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
+
 var apiKey *string
 
 func init() {
@@ -64,6 +68,8 @@ func init() {
 		log.Fatal("apiKey must be set.")
 	}
 }
+
+
 
 func (s *Search) IsLastPage() bool {
 	return s.NextPage >= s.TotalPages
@@ -80,10 +86,9 @@ func (s *Search) PreviousPage() int {
 	return s.CurrentPage() - 1
 }
 
-type NewsAPIError struct {
-	Status  string `json:"status"`
-	Code    string `json:"code"`
-	Message string `json:"message"`
+// IndexHandler is the  default hanlder to execute the template
+func IndexHandler(w http.ResponseWriter, r *http.Request) {
+	tpl.Execute(w, nil)
 }
 
 // SearchHandler ...
