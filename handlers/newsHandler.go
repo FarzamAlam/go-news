@@ -93,6 +93,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 
 // SearchHandler ...
 func SearchHandler(w http.ResponseWriter, r *http.Request) {
+	// Get page and q as query params
 	query := r.URL.Query()
 	searchKey := query.Get("q")
 	page := query.Get("page")
@@ -112,6 +113,7 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	search.NextPage = next
 	pageSize := 20
+	// Create the end point and call the service.
 	endPoint := fmt.Sprintf("https://newsapi.org/v2/everything?q=%s&pageSize=%d&page=%d&apiKey=%s&sortBy=publishedAt&language=en", url.QueryEscape(search.SearchKey), pageSize, search.NextPage, *apiKey)
 	resp, err := http.Get(endPoint)
 	if err != nil {
@@ -131,6 +133,7 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("Status code is != 200")
 		return
 	}
+	// Decode the response in &search.Results
 	err = json.NewDecoder(resp.Body).Decode(&search.Results)
 	if err != nil {
 		log.Println("Error while decoding the json body : ", err)
@@ -139,6 +142,7 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 	if ok := !search.IsLastPage(); ok {
 		search.NextPage++
 	}
+	// Execute the tpl and pass search param.
 	err = tpl.Execute(w, search)
 	if err != nil {
 		log.Println("Error while tpl.Execute : ", err)
