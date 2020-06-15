@@ -46,6 +46,7 @@ type Source struct {
 	Name string      `json:"name"`
 }
 
+// Search is used to get the request param and collect data from the api.
 type Search struct {
 	SearchKey  string
 	NextPage   int
@@ -53,6 +54,7 @@ type Search struct {
 	Results    Results
 }
 
+// NewsAPIError will collect data in case api fails.
 type NewsAPIError struct {
 	Status  string `json:"status"`
 	Code    string `json:"code"`
@@ -61,6 +63,7 @@ type NewsAPIError struct {
 
 var apiKey *string
 
+// init is used to initialize the flag to send the key. This is the first func that is executed.
 func init() {
 	apiKey = flag.String("apiKey", "", "Newsapi.org access key.")
 	flag.Parse()
@@ -68,8 +71,6 @@ func init() {
 		log.Fatal("apiKey must be set.")
 	}
 }
-
-
 
 func (s *Search) IsLastPage() bool {
 	return s.NextPage >= s.TotalPages

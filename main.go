@@ -9,7 +9,7 @@ import (
 )
 
 // TO DO:
-// 0. Implement a running app.
+// 0. Implement a running app.		--> Done.
 // 1. Get top stories by default for user country or india.
 // 2. Update the Header UI.
 // 3. Refractor newsHandler.
