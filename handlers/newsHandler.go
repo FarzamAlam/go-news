@@ -106,7 +106,6 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer resp.Body.Close()
-	log.Println("resp : ", resp)
 	if resp.StatusCode != 200 {
 		tpl.Execute(w, nil)
 		return
@@ -178,6 +177,7 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("Error while decoding the json body : ", err)
 	}
 	search.TotalPages = int(math.Ceil(float64(search.Results.TotalResults / pageSize)))
+	fmt.Println("Total")
 	if ok := !search.IsLastPage(); ok {
 		search.NextPage++
 	}

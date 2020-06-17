@@ -11,7 +11,7 @@ import (
 // TO DO:
 // 0. Implement a running app.		--> Done.
 // 1. Get top stories by default for user country or india.
-// 2. Update the Header UI.
+// 2. Update the Header UI.		--> Done.
 // 3. Refractor newsHandler.
 // 4. Implement Concurrency.
 // 5. Implement Caching.
