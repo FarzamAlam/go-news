@@ -89,7 +89,45 @@ func (s *Search) PreviousPage() int {
 
 // IndexHandler is the  default hanlder to execute the template
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	tpl.Execute(w, nil)
+	searchKey := "in"
+	page := ""
+	if page == "" {
+		page = "1"
+	}
+	next, err := strconv.Atoi(page)
+	search := &Search{}
+	search.NextPage = next
+	pageSize := 20
+	endPoint := fmt.Sprintf("https://newsapi.org/v2/top-headlines?country=%s&pageSize=%d&page=%d&sortBy=publishedAt&apiKey=%s&language=en", searchKey, pageSize, page, *apiKey)
+	resp, err := http.Get(endPoint)
+	if err != nil {
+		log.Println("Error while calling the endPoint : ", endPoint)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	defer resp.Body.Close()
+	log.Println("resp : ", resp)
+	if resp.StatusCode != 200 {
+		tpl.Execute(w, nil)
+		return
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&search.Results)
+	if err != nil {
+		log.Println("Error while decoding resp.Body")
+		tpl.Execute(w, nil)
+		return
+	}
+	search.TotalPages = int(math.Ceil(float64(search.Results.TotalResults / pageSize)))
+	if ok := !search.IsLastPage(); ok {
+		search.NextPage++
+	}
+	err = tpl.Execute(w, search)
+	if err != nil {
+		log.Println("Error while executing the template")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
 
 // SearchHandler ...
