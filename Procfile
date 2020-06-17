@@ -1,1 +1,1 @@
-web: bin/go-news -apikey $NEWS_API_KEY 
+web: bin/go-news -apiKey $NEWS_API_KEY 
