@@ -14,10 +14,10 @@ import (
 // 0. Implement a running app.		--> Done.
 // 1. Get top stories by default for user country or india.
 // 2. Update the Header UI.		--> Done.
-// 3. Refractor newsHandler.
+// 3. Refractor newsHandler.	--> Done.
 // 4. Implement Concurrency.
 // 5. Implement Caching.
-// 6. Deploy on heruko.
+// 6. Deploy on heruko.			--> Done.
 // 7. Make a proper README.
 // 8. Post it on reddit.
 

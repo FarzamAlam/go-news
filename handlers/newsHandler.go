@@ -11,6 +11,8 @@ import (
 	"strconv"
 	"text/template"
 	"time"
+
+	gocache "github.com/patrickmn/go-cache"
 )
 
 // index.html is Parsed and if it throws the error then code panics
@@ -87,6 +89,8 @@ func (s *Search) PreviousPage() int {
 	return s.CurrentPage() - 1
 }
 
+var cache = gocache.New(15*time.Minute, 20*time.Minute)
+
 // IndexHandler is the  default hanlder to execute the template
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	searchKey := "in"
@@ -95,32 +99,15 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	search.NextPage = next
 	pageSize := 20
 	endPoint := fmt.Sprintf("https://newsapi.org/v2/top-headlines?country=%s&pageSize=%d&page=%d&sortBy=publishedAt&apiKey=%s&language=en", searchKey, pageSize, next, *apiKey)
-	resp, err := http.Get(endPoint)
-	if err != nil {
-		log.Println("Error while calling the endPoint : ", endPoint)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
-		tpl.Execute(w, nil)
-		return
-	}
-	parseResultIntoTemp(resp, search, w, pageSize)
+	getAPIData(search, pageSize, endPoint, w)
 }
 
-func parseResultIntoTemp(resp *http.Response, search *Search, w http.ResponseWriter, pageSize int) {
-	err := json.NewDecoder(resp.Body).Decode(&search.Results)
-	if err != nil {
-		log.Println("Error while decoding resp.Body")
-		tpl.Execute(w, nil)
-		return
-	}
+func parseResultIntoTemp(search *Search, w http.ResponseWriter, pageSize int) {
 	search.TotalPages = int(math.Ceil(float64(search.Results.TotalResults / pageSize)))
 	if ok := !search.IsLastPage(); ok {
 		search.NextPage++
 	}
-	err = tpl.Execute(w, search)
+	err := tpl.Execute(w, search)
 	if err != nil {
 		log.Println("Error while executing the template")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -149,10 +136,16 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 	pageSize := 20
 	// Create the end point and call the service.
 	endPoint := fmt.Sprintf("https://newsapi.org/v2/everything?q=%s&pageSize=%d&page=%d&apiKey=%s&sortBy=publishedAt&language=en", url.QueryEscape(search.SearchKey), pageSize, search.NextPage, *apiKey)
+	getAPIData(search, pageSize, endPoint, w)
+}
+func getAPIData(search *Search, pageSize int, endPoint string, w http.ResponseWriter) {
+	if search, ok := cache.Get(endPoint); ok {
+		parseResultIntoTemp(search.(*Search), w, pageSize)
+		return
+	}
 	resp, err := http.Get(endPoint)
 	if err != nil {
-		log.Println("Error calling the endPoint")
-		log.Println("endPoint : ", endPoint)
+		log.Println("Error calling the endPoint : ", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -167,8 +160,15 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("Status code is != 200")
 		return
 	}
-	// Decode the response in &search.Results
-	parseResultIntoTemp(resp, search, w, pageSize)
+	err = json.NewDecoder(resp.Body).Decode(&search.Results)
+	if err != nil {
+		log.Println("Error while decoding resp.Body : ", err)
+		tpl.Execute(w, nil)
+		return
+	}
+	// Parse the response in template
+	parseResultIntoTemp(search, w, pageSize)
+	cache.Set(endPoint, search, gocache.DefaultExpiration)
 }
 
 // LoggingMiddleWare is used to print the elapsed time between a request can and server response.
