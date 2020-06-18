@@ -138,6 +138,7 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 	endPoint := fmt.Sprintf("https://newsapi.org/v2/everything?q=%s&pageSize=%d&page=%d&apiKey=%s&sortBy=publishedAt&language=en", url.QueryEscape(search.SearchKey), pageSize, search.NextPage, *apiKey)
 	getAPIData(search, pageSize, endPoint, w)
 }
+
 func getAPIData(search *Search, pageSize int, endPoint string, w http.ResponseWriter) {
 	if search, ok := cache.Get(endPoint); ok {
 		parseResultIntoTemp(search.(*Search), w, pageSize)

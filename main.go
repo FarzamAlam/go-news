@@ -29,7 +29,7 @@ func main() {
 	r := mux.NewRouter()
 	// Serving static files
 	fs := http.FileServer(http.Dir("assets"))
-	r.Handle("/assets/", http.StripPrefix("/assets/", fs))
+	r.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", fs))
 	r.Use(handlers.LoggingMiddleWare)
 	r.HandleFunc("/search", handlers.SearchHandler)
 	r.HandleFunc("/", handlers.IndexHandler)
