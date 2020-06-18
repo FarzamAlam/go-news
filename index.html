@@ -7,6 +7,7 @@
     </head>
     <body>
         <main>
+            <!-- Header the green header that contains the Go-News name, search bar and link to github project-->
             <header>
                 <a class="logo" style = "padding-left : 10px" href = "/"><h2>Go-News</h2><a>
                 <form action = "/search" method = "GET">
@@ -15,6 +16,7 @@
                 </form>
                 <a href= "https://github.com/FarzamAlam/go-news"><img style="padding-right:15px" src="https://img.icons8.com/ios-glyphs/30/000000/github.png"/></a>
             </header>
+            <!-- Container defines the result of the search response from the api.-->
             <section class = "container">
                 <div class = "result-count">
                     {{if (gt .Results.TotalResults 0)}}
@@ -40,6 +42,7 @@
                         </li>
                         {{end}}
                 </ul>
+                <!-- Pagination is used when search result is more than 20. We can go forward and backward.-->
                 <div class = "pagination">
                     {{if (gt .NextPage 2)}}
                         <a href ="/search?q={{.SearchKey}}&page={{.PreviousPage}}" class= "button previous-page">Previous</a>

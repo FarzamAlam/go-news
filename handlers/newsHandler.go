@@ -74,10 +74,12 @@ func init() {
 	}
 }
 
+// IsLastPage returns the true if the next page is equal to total page
 func (s *Search) IsLastPage() bool {
 	return s.NextPage >= s.TotalPages
 }
 
+// CurrentPage returns the current page.s
 func (s *Search) CurrentPage() int {
 	if s.NextPage == 1 {
 		return s.NextPage
@@ -85,23 +87,30 @@ func (s *Search) CurrentPage() int {
 	return s.NextPage - 1
 }
 
+// PreviousPage returns current page - 1s
 func (s *Search) PreviousPage() int {
 	return s.CurrentPage() - 1
 }
 
+// cache variable is used to cache the search object, it expires after 15 min.
 var cache = gocache.New(15*time.Minute, 20*time.Minute)
 
 // IndexHandler is the  default hanlder to execute the template
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
+	// Our Web app by default shows the top 20 results for country = India(in)
 	searchKey := "in"
 	next := 1
 	search := &Search{}
 	search.NextPage = next
 	pageSize := 20
 	endPoint := fmt.Sprintf("https://newsapi.org/v2/top-headlines?country=%s&pageSize=%d&page=%d&sortBy=publishedAt&apiKey=%s&language=en", searchKey, pageSize, next, *apiKey)
+	// getAPIData is called with search object, pageSize, endPoint and response writer object
+	// it used to get the api data and parse it into the template.
 	getAPIData(search, pageSize, endPoint, w)
 }
 
+// parseResultIntoTemp takes the searchObject calculates the total pages and increases the next page
+// and parses the search object into the template.
 func parseResultIntoTemp(search *Search, w http.ResponseWriter, pageSize int) {
 	search.TotalPages = int(math.Ceil(float64(search.Results.TotalResults / pageSize)))
 	if ok := !search.IsLastPage(); ok {
@@ -115,7 +124,10 @@ func parseResultIntoTemp(search *Search, w http.ResponseWriter, pageSize int) {
 	}
 }
 
-// SearchHandler ...
+// SearchHandler ... It is used to handle the search query.
+// It takes two query params q and page. where q is search string and page is the page number.
+// It parses the page from the query param creates the endPoint with the query string and calls the getAPIData
+// to get and parse the result on template.
 func SearchHandler(w http.ResponseWriter, r *http.Request) {
 	// Get page and q as query params
 	query := r.URL.Query()
@@ -139,11 +151,18 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 	getAPIData(search, pageSize, endPoint, w)
 }
 
+// getAPIData is used to get the search object from the cache or from the api call.
+// It first checks the cache with the endPoint, if it finds then it calls the parseResultIntoTemp func and returns.
+// It endPoint is not present in the cache memory then it calls the api with the endPoint.
+// If it results in the error then it returns the error in NewsAPIError object.
+// Otherwise it decodes the reponse object in the search and calls parseResultIntoTemp func.
+// and at last it caches the search object and endpoint string.
 func getAPIData(search *Search, pageSize int, endPoint string, w http.ResponseWriter) {
 	if search, ok := cache.Get(endPoint); ok {
 		parseResultIntoTemp(search.(*Search), w, pageSize)
 		return
 	}
+	// Calling the external API.
 	resp, err := http.Get(endPoint)
 	if err != nil {
 		log.Println("Error calling the endPoint : ", err)
@@ -161,6 +180,7 @@ func getAPIData(search *Search, pageSize int, endPoint string, w http.ResponseWr
 		log.Println("Status code is != 200")
 		return
 	}
+	// decoding the response body into &search.Results
 	err = json.NewDecoder(resp.Body).Decode(&search.Results)
 	if err != nil {
 		log.Println("Error while decoding resp.Body : ", err)
