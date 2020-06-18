@@ -132,6 +132,11 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 	// Get page and q as query params
 	query := r.URL.Query()
 	searchKey := query.Get("q")
+	// If the query is empty then return index page.
+	if searchKey == "" {
+		IndexHandler(w, r)
+		return
+	}
 	page := query.Get("page")
 	if page == "" {
 		page = "1"
