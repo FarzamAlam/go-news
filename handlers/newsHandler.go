@@ -90,15 +90,11 @@ func (s *Search) PreviousPage() int {
 // IndexHandler is the  default hanlder to execute the template
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	searchKey := "in"
-	page := ""
-	if page == "" {
-		page = "1"
-	}
-	next, err := strconv.Atoi(page)
+	next := 1
 	search := &Search{}
 	search.NextPage = next
 	pageSize := 20
-	endPoint := fmt.Sprintf("https://newsapi.org/v2/top-headlines?country=%s&pageSize=%d&page=%d&sortBy=publishedAt&apiKey=%s&language=en", searchKey, pageSize, page, *apiKey)
+	endPoint := fmt.Sprintf("https://newsapi.org/v2/top-headlines?country=%s&pageSize=%d&page=%d&sortBy=publishedAt&apiKey=%s&language=en", searchKey, pageSize, next, *apiKey)
 	resp, err := http.Get(endPoint)
 	if err != nil {
 		log.Println("Error while calling the endPoint : ", endPoint)
@@ -110,8 +106,11 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 		tpl.Execute(w, nil)
 		return
 	}
+	parseResultIntoTemp(resp, search, w, pageSize)
+}
 
-	err = json.NewDecoder(resp.Body).Decode(&search.Results)
+func parseResultIntoTemp(resp *http.Response, search *Search, w http.ResponseWriter, pageSize int) {
+	err := json.NewDecoder(resp.Body).Decode(&search.Results)
 	if err != nil {
 		log.Println("Error while decoding resp.Body")
 		tpl.Execute(w, nil)
@@ -138,9 +137,6 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 	if page == "" {
 		page = "1"
 	}
-	log.Println("Search Query is : ", searchKey)
-	log.Println("Result Page is : ", page)
-
 	search := &Search{}
 	search.SearchKey = searchKey
 	next, err := strconv.Atoi(page)
@@ -172,18 +168,16 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Decode the response in &search.Results
-	err = json.NewDecoder(resp.Body).Decode(&search.Results)
-	if err != nil {
-		log.Println("Error while decoding the json body : ", err)
-	}
-	search.TotalPages = int(math.Ceil(float64(search.Results.TotalResults / pageSize)))
-	fmt.Println("Total")
-	if ok := !search.IsLastPage(); ok {
-		search.NextPage++
-	}
-	// Execute the tpl and pass search param.
-	err = tpl.Execute(w, search)
-	if err != nil {
-		log.Println("Error while tpl.Execute : ", err)
-	}
+	parseResultIntoTemp(resp, search, w, pageSize)
+}
+
+// LoggingMiddleWare is used to print the elapsed time between a request can and server response.
+func LoggingMiddleWare(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		startTime := time.Now()
+		next.ServeHTTP(w, r)
+		endTime := time.Now()
+		elapsed := endTime.Sub(startTime)
+		log.Println("Elapsed Time : ", elapsed)
+	})
 }

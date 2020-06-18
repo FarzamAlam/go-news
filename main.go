@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gorilla/mux"
+
 	"github.com/farzamalam/go-news/handlers"
 )
 
@@ -24,12 +26,13 @@ func main() {
 	if port == "" {
 		port = "3000"
 	}
-	mux := http.NewServeMux()
+	r := mux.NewRouter()
 	// Serving static files
 	fs := http.FileServer(http.Dir("assets"))
-	mux.Handle("/assets/", http.StripPrefix("/assets/", fs))
-	mux.HandleFunc("/search", handlers.SearchHandler)
-	mux.HandleFunc("/", handlers.IndexHandler)
+	r.Handle("/assets/", http.StripPrefix("/assets/", fs))
+	r.Use(handlers.LoggingMiddleWare)
+	r.HandleFunc("/search", handlers.SearchHandler)
+	r.HandleFunc("/", handlers.IndexHandler)
 	log.Println("Starting server on : ", port)
-	log.Fatal(http.ListenAndServe(":"+port, mux))
+	log.Fatal(http.ListenAndServe(":"+port, r))
 }
