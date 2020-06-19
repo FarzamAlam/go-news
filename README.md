@@ -15,7 +15,7 @@ You can find api key [here](https://newsapi.org/).  *Newsapi.org* provides you u
 
 ### Go-News
 
-![Go-News GIF](https://im4.ezgif.com/tmp/ezgif-4-bf45aedc3e4a.gif)
+![Go-News GIF](assets/go-news.gif)
 
 `Any code review will be very much appreciated.`
 
