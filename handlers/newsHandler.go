@@ -39,8 +39,7 @@ type Article struct {
 
 // FormatPublishedDate is used to format the resp date.
 func (a *Article) FormatPublishedDate() string {
-	year, month, day := a.PublishedAt.Date()
-	return fmt.Sprintf("%v %d, %d", month, day, year)
+	return a.PublishedAt.Format("January 02, 2006")
 }
 
 type Source struct {

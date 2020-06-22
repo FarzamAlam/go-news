@@ -3,7 +3,7 @@
 
 People are always bombarded with news that are not relevant to them. This creates lots of distraction. So what Go-News does is, it lets you know news that you care about.
 
-It is designed to be very minimalistic with only things that are necessory. It searches news basis what you types amoung multiple sources and shows you the relevant information.
+It is designed to be very minimalistic with only things that are necessary. It searches News basis what you type among multiple sources and shows you the relevant information.
 
 `Note: This is a simple go project in which I have explored web handlers, middleware and caching.`
 
