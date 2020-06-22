@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"log"
 	"math"
 	"net/http"
 	"net/url"
 	"strconv"
 	"text/template"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	gocache "github.com/patrickmn/go-cache"
 )

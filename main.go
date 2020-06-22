@@ -1,9 +1,10 @@
 package main
 
 import (
-	"log"
 	"net/http"
 	"os"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/gorilla/mux"
 
@@ -22,6 +23,17 @@ import (
 // 8. Post it on reddit.
 
 func main() {
+	// Initiate logging.
+	file, err := os.OpenFile("info.log", os.O_CREATE|os.O_APPEND, 0644)
+	if err != nil {
+		log.Fatal("Error while Opening info.log : ", err)
+	}
+	defer file.Close()
+	formatter := new(log.TextFormatter)
+	formatter.TimestampFormat = "2006-01-02T15:04:05.990Z07:00"
+	log.SetFormatter(formatter)
+	log.SetOutput(file)
+
 	// Getting the port from the environment variable.
 	port := os.Getenv("PORT")
 	if port == "" {
